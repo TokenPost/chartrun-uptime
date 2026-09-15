@@ -1,0 +1,23 @@
+name: 스케줄 유지
+
+# 공개 저장소는 60일 동안 커밋이 없으면 GitHub 이 스케줄 워크플로를 꺼버린다.
+# 한 달에 한 번 심장박동 커밋을 남겨 그 일을 막는다.
+on:
+  schedule:
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+
+jobs:
+  touch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          date -u > .heartbeat
+          git config user.name "uptime-keepalive"
+          git config user.email "actions@users.noreply.github.com"
+          git add .heartbeat
+          git commit -m "keepalive: 스케줄이 무활동으로 꺼지지 않게" || exit 0
+          git push
